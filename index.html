@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./scripts/js/lib/three.module.js",
+                "OrbitControls": "./scripts/js/lib/OrbitControls.js",
+                "MyFirstShader": "./scripts/js/shaders/MyFirstShader.js"
+
+            }
+        }
+    </script>
+
+    <script type="module" src="scripts/js/main.js"></script>
+
+</body>
+
+</html>
