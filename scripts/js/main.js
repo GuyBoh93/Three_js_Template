@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'OrbitControls';
-import { material } from 'Shader';
-import { ShaderApp } from 'Shader';
+
+// import { ShaderApp } from 'ShaderTools';
+import { Shader } from 'Shader';
 
 
 
@@ -13,49 +14,49 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+const geometry = new THREE.BoxGeometry(2, 2, 2);
 
-let Shader = new ShaderApp(renderer)
-
-
-
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+let Mat = new Shader(renderer)
 
 
-const cube2 = new THREE.Mesh(geometry, Shader.GetMat());
-cube2.position.x = 3
+
+// const cube = new THREE.Mesh(geometry, Mat.GetCurrent());
+// scene.add(cube);
+// const cube3 = new THREE.Mesh(geometry, Mat.GetPast());
+// cube3.position.x = -1
+
+// scene.add(cube3);
+
+
+const cube2 = new THREE.Mesh(geometry, Mat.GetMat());
+// cube2.position.x = 1
 scene.add(cube2);
 
-const cube3 = new THREE.Mesh(geometry, Shader.GetBufMat());
-cube3.position.x = -3
-scene.add(cube3);
 
-const ma = new THREE.MeshPhongMaterial({
-  map: Shader.GetBufTex()
-});
 
-const cube4 = new THREE.Mesh(geometry, ma);
-cube4.position.y = -3
-scene.add(cube4);
+camera.position.z = 2;
 
-camera.position.z = 5;
-
-const controls = new OrbitControls(camera, renderer.domElement);
+// const controls = new OrbitControls(camera, renderer.domElement);
 
 
 
 
 function animate() {
-  requestAnimationFrame(animate);
+  // requestAnimationFrame(animate);
+  setTimeout( function() {
 
+    
+    requestAnimationFrame( animate );
+    // controls.update();
+    // Shader.Update();
+    Mat.render()
+    
+  }, 1000 / 60);
+  
   // cube.rotation.x += 0.01;
   // cube.rotation.y += 0.01;
   // cube2.rotation.y += 0.01;
 
-  controls.update();
-
-  Shader.Update();
 
 
   renderer.render(scene, camera);
