@@ -82,7 +82,7 @@ vec2 GetDir(){
   float y = 0.5;
   float Curent_Pix = PixToBW(texture2D(iChannel0, vUv));
   float Last_Pix = PixToBW(texture2D(iChannel1, vUv));
-  float BuketSize = 5.;
+  float BuketSize = 20.;
   
   if (Last_Pix > Curent_Pix-tol_SamePixle && Last_Pix < Curent_Pix+tol_SamePixle){
     return dir;
