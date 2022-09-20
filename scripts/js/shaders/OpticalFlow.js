@@ -62,26 +62,57 @@ const TEST_Shader = `
 uniform sampler2D iChannel0;
 uniform sampler2D iChannel1;
 
+
 uniform vec3      iResolution;           // viewport resolution (in pixels)
 
+
 varying vec2 vUv;
-float tol = 0.1;
+
+
+float tol_SamePixle = 0.03;
+vec2 RT_Szie = vec2(512,512);
+
+float PixToBW(vec4 Pix ){
+	
+    return ((Pix[0]+Pix[1]+Pix[2])*.33);
+}
+
+vec2 GetDir(){
+  vec2 dir = vec2(0.5,0.5);
+  float y = 0.5;
+  float Curent_Pix = PixToBW(texture2D(iChannel0, vUv));
+  float Last_Pix = PixToBW(texture2D(iChannel1, vUv));
+  float BuketSize = 5.;
+  
+  if (Last_Pix > Curent_Pix-tol_SamePixle && Last_Pix < Curent_Pix+tol_SamePixle){
+    return dir;
+  }
+  else{
+    for (float x = (BuketSize*-1.); x < BuketSize; x= x+1.0){
+      for (float y = (BuketSize*-1.); y < BuketSize; y = y + 1.0){
+        float NextPix = PixToBW(texture2D(iChannel1, vUv+ (vec2 (x,y)/RT_Szie) ));
+        if (NextPix > Curent_Pix-tol_SamePixle && NextPix < Curent_Pix+tol_SamePixle){
+          dir[0] = ((x+BuketSize)*(1./BuketSize));
+          dir[1] = ((y+BuketSize)*(1./BuketSize));
+          dir[1] = ((dir[1]-0.5) * -1.)+.5; //FLip Y
+          // dir[1] = 0.;
+          return dir;
+        }        
+      }
+    }
+    dir[0] = 0.5;
+    dir[1] = 0.5;
+    return dir;
+  }
+
+}
 
 void main()
 { 
-  float a = texture2D(iChannel0, vUv).x;
-  float b = texture2D(iChannel1, vUv).x;
-
-
-
-  if (b > a-tol && b < a+tol){
-    gl_FragColor = vec4(0.0,0,0,1);
-  }
-  else{
-    gl_FragColor = vec4 (1.0,0,0,1);
-
-  }
-  // gl_FragColor = texture2D(iChannel0, vUv) + texture2D(iChannel1, vUv);
+  vec2 dir = GetDir();
+  
+  gl_FragColor = vec4 (dir[0],dir[1],0,1);
+  // gl_FragColor = vec4 (0,dir[1],0,1);
 
 }
 
@@ -113,8 +144,8 @@ class Shader {
       iChannel1: {
         value: this.CamFeedBufPast.GetRT()
       },
-      iResolution:{
-        value: new THREE.Vector3(100,100,100)
+      iResolution: {
+        value: new THREE.Vector3(100, 100, 100)
       }
     }
     this.OpticalFlow = new Shader_RT_Buffer(renderer, this.uniforms, TEST_Shader)
@@ -126,12 +157,12 @@ class Shader {
     return this.OpticalFlow.GetMat()
   }
 
-  GetCurrent(){
+  GetCurrent() {
     return this.CamFeedBufCurnt.GetMat()
 
   }
 
-  GetPast(){
+  GetPast() {
     return this.CamFeedBufPast.GetMat()
 
   }

@@ -22,8 +22,9 @@ let Mat = new Shader(renderer)
 
 // const cube = new THREE.Mesh(geometry, Mat.GetCurrent());
 // scene.add(cube);
+
 // const cube3 = new THREE.Mesh(geometry, Mat.GetPast());
-// cube3.position.x = -1
+// cube3.position.x = -2
 
 // scene.add(cube3);
 
