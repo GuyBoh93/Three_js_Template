@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from './three.module.js';
 
 function GetCameraFeed() {
     const video = document.getElementById('video');
@@ -7,6 +7,10 @@ function GetCameraFeed() {
       audio: false
     };
     // Get image from camera
+    navigator.getUserMedia = ( navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia);
     navigator.getUserMedia(option, (stream) => {
       video.srcObject = stream;  // Load as source of video tag
       video.addEventListener("loadeddata", () => {

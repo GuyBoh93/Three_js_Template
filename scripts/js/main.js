@@ -1,8 +1,8 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'OrbitControls';
+import * as THREE from './lib/three.module.js';
+import { OrbitControls } from './lib/OrbitControls.js';
 
 // import { ShaderApp } from 'ShaderTools';
-import { Shader } from 'Shader';
+import { Shader } from './shaders/OpticalFlow.js';
 
 
 

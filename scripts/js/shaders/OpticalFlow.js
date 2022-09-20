@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { Shader_RT_Buffer, GetCameraFeed, FARG_RT_SHADER } from 'ShaderTools';
+import * as THREE from '../lib/three.module.js';
+import { Shader_RT_Buffer, GetCameraFeed } from '../lib/ShaderTools.js';
 
 
 
