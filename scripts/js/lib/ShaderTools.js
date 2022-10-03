@@ -3,27 +3,27 @@ import * as THREE from './three.module.js';
 function GetCameraFeed() {
     const video = document.getElementById('video');
     const option = {
-      video: true,
-      audio: false
+        video: true,
+        audio: false
     };
     // Get image from camera
-    navigator.getUserMedia = ( navigator.getUserMedia ||
+    navigator.getUserMedia = (navigator.getUserMedia ||
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia ||
         navigator.msGetUserMedia);
     navigator.getUserMedia(option, (stream) => {
-      video.srcObject = stream;  // Load as source of video tag
-      video.addEventListener("loadeddata", () => {
-        // ready
-      });
+        video.srcObject = stream;  // Load as source of video tag
+        video.addEventListener("loadeddata", () => {
+            // ready
+        });
     }, (error) => {
-      console.log(error);
+        console.log(error);
     });
     const tex = new THREE.VideoTexture(video);
-  
+
     return tex
-  
-  }
+
+}
 
 const VERTEX_SHADER = `
     varying vec2 vUv;
@@ -43,7 +43,7 @@ void main() {
 `;
 
 class Shader_RT_Buffer {
-    constructor(renderer,uniforms, fragShader = FARG_RT_SHADER, width = 512, height = 512) {
+    constructor(renderer, uniforms, fragShader = FARG_RT_SHADER, vertexShader = VERTEX_SHADER, width = 512, height = 512) {
         this.width = width
         this.height = height
         this.scene = new THREE.Scene();
@@ -53,14 +53,29 @@ class Shader_RT_Buffer {
         this.orthoCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         this.orthoCamera.position.z = .5;
 
-        this.renderTarget = new THREE.WebGLRenderTarget(this.width, this.height, {
-            minFilter: THREE.LinearFilter,
-            magFilter: THREE.NearestFilter
+        this.renderTargetIn = new THREE.WebGLRenderTarget(this.width, this.height, {
+            wrapS:THREE.RepeatWrapping,
+            wrapT:THREE.RepeatWrapping,
+            minFilter: THREE.NearestFilter,
+            magFilter: THREE.NearestFilter,
+            format: THREE.RGBAFormat,
+            type:THREE.FloatType,
+            stencilBuffer: false
+        });
+
+        this.renderTargetOut = new THREE.WebGLRenderTarget(this.width, this.height, {
+            wrapS:THREE.RepeatWrapping,
+            wrapT:THREE.RepeatWrapping,
+            minFilter: THREE.NearestFilter,
+            magFilter: THREE.NearestFilter,
+            format: THREE.RGBAFormat,
+            type:THREE.FloatType,
+            stencilBuffer: false
         });
 
         this.mat = new THREE.ShaderMaterial({
             uniforms: uniforms,
-            vertexShader: VERTEX_SHADER,
+            vertexShader: vertexShader,
             fragmentShader: fragShader,
         });
 
@@ -69,10 +84,17 @@ class Shader_RT_Buffer {
         );
     }
     GetRT() {
-        return this.renderTarget.texture;
+        return this.renderTargetOut.texture;
     }
     render() {
-        this.renderer.setRenderTarget(this.renderTarget);
+
+
+        var lastFrame = this.renderTargetIn.texture;
+        this.renderTargetIn.texture = this.renderTargetOut.texture;
+        this.renderTargetOut.texture = lastFrame;
+
+        this.mat.uniforms.RT.value = this.renderTargetOut;
+        this.renderer.setRenderTarget(this.renderTargetOut);
         this.renderer.render(this.scene, this.orthoCamera);
         this.renderer.setRenderTarget(null);
     }
@@ -81,4 +103,4 @@ class Shader_RT_Buffer {
     }
 }
 
-export { Shader_RT_Buffer, VERTEX_SHADER, FARG_RT_SHADER, GetCameraFeed};
+export { Shader_RT_Buffer, VERTEX_SHADER, FARG_RT_SHADER, GetCameraFeed };
